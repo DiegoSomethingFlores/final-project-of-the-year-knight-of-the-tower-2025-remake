@@ -645,9 +645,18 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Flag, function (sprite, otherSpr
     }
 })
 scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile13`, function (sprite, location) {
+    Knight.sayText("Press B!")
     if (controller.B.isPressed()) {
+        CurrentLevel += 1
         game.splash("You completed Floor 1")
         game.splash("Score: " + info.score() + " Health: " + PlayersHealth.value + " Lives: " + info.life())
+        if (CurrentLevel == 1) {
+            Amount_Of_Stars = 0
+            CleanUp()
+            scene.setBackgroundColor(12)
+            tiles.setCurrentTilemap(tilemap`level5`)
+            The_Whole_Game()
+        }
     }
 })
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
@@ -1759,7 +1768,6 @@ function UI_Display () {
 function The_Whole_Game () {
     info.startCountdown(180)
     scene.setBackgroundColor(11)
-    tiles.setCurrentTilemap(tilemap`level1`)
     PlayersFunction()
     EnemyFunction()
     Valuables()
@@ -2077,8 +2085,16 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.FlyingEnemy, function (sprite, o
 statusbars.onZero(StatusBarKind.Health, function (status) {
     info.changeLifeBy(-1)
     Amount_Of_Stars = 0
-    CleanUp()
-    The_Whole_Game()
+    if (CurrentLevel == 1) {
+        CleanUp()
+        scene.setBackgroundColor(12)
+        tiles.setCurrentTilemap(tilemap`level5`)
+        The_Whole_Game()
+    } else {
+        CleanUp()
+        tiles.setCurrentTilemap(tilemap`level1`)
+        The_Whole_Game()
+    }
 })
 function Obstacles () {
     for (let value of tiles.getTilesByType(assets.tile`myTile18`)) {
@@ -2669,6 +2685,8 @@ function Ghost_Skeleton_Sprite_Animation () {
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
     otherSprite.vy += -25
+    music.setVolume(40)
+    music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.InBackground)
     pause(300)
     info.changeScoreBy(randint(25, 100))
     sprites.destroy(otherSprite)
@@ -2958,12 +2976,14 @@ let Star: Sprite = null
 let PlayersHealth: StatusBarSprite = null
 let CheckpointReached = 0
 let Amount_Of_Stars = 0
+let CurrentLevel = 0
 info.setLife(3)
 info.setScore(0)
-let CurrentLevel = 0
+CurrentLevel = 0
 Amount_Of_Stars = 0
 CheckpointReached = 0
 let BonusCoinsAwarded = 0
+tiles.setCurrentTilemap(tilemap`level1`)
 The_Whole_Game()
 game.onUpdate(function () {
     for (let value of sprites.allOfKind(SpriteKind.FlyingEnemy)) {
